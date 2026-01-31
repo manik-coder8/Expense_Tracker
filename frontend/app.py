@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-API_URL = "https://expense-tracker-backend.onrender.com"
+API_URL = "https://expense-tracker-backend-hst2.onrender.com"
 
 # ---------------- SESSION STATE ----------------
 if "show_add_expense" not in st.session_state:
