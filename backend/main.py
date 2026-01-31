@@ -88,14 +88,19 @@ def create_expense(expense: ExpenseIn):
 @app.get("/expenses", response_model=List[ExpenseOut])
 def list_expenses(
     category: Optional[str] = None,
+    date: Optional[str] = None,
     sort: Optional[str] = "date_desc"
 ):
-    query = "SELECT * FROM expenses"
+    query = "SELECT * FROM expenses WHERE 1=1"
     params = []
 
     if category:
-        query += " WHERE category = ?"
+        query += " AND category = ?"
         params.append(category)
+
+    if date:
+        query += " AND date = ?"
+        params.append(date)
 
     if sort == "date_desc":
         query += " ORDER BY date DESC"
@@ -114,3 +119,16 @@ def list_expenses(
         }
         for r in rows
     ]
+
+@app.get("/expenses/filters")
+def get_expense_filters():
+    cursor.execute("SELECT DISTINCT category FROM expenses ORDER BY category")
+    categories = [row[0] for row in cursor.fetchall()]
+
+    cursor.execute("SELECT DISTINCT date FROM expenses ORDER BY date DESC")
+    dates = [row[0] for row in cursor.fetchall()]
+
+    return {
+        "categories": categories,
+        "dates": dates
+    }
