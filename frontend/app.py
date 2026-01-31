@@ -2,9 +2,14 @@ import streamlit as st
 import requests
 import uuid
 
-API_URL = "http://localhost:8000"
+# ---------------- PAGE CONFIG (MUST BE FIRST) ----------------
+st.set_page_config(
+    page_title="Expense Tracker",
+    page_icon="💸",
+    layout="centered"
+)
 
-st.title("💸 Expense Tracker")
+API_URL = "http://localhost:8000"
 
 # ---------------- SESSION STATE ----------------
 if "show_add_expense" not in st.session_state:
@@ -13,22 +18,44 @@ if "show_add_expense" not in st.session_state:
 if "show_expenses" not in st.session_state:
     st.session_state.show_expenses = False
 
-# ---------------- ACTION BUTTONS ----------------
-col1, col2 = st.columns(2)
+# ---------------- HERO SECTION ----------------
+st.markdown(
+    """
+    <div style="text-align: center; margin-top: 30px;">
+        <h1>💸 Expense Tracker</h1>
+        <p style="font-size: 18px; color: gray;">
+            Track, filter, and understand where your money goes.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-with col1:
-    if st.button("➕ Add New Expense"):
-        st.session_state.show_add_expense = True
-        st.session_state.show_expenses = False
+st.markdown("---")
+
+# ---------------- MAIN ACTION BUTTONS ----------------
+col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
-    if st.button("📄 View Expenses"):
-        st.session_state.show_expenses = True
-        st.session_state.show_add_expense = False
+    btn_col1, btn_col2 = st.columns(2)
 
-st.divider()
+    with btn_col1:
+        if st.button("➕ Add New Expense", use_container_width=True):
+            st.session_state.show_add_expense = True
+            st.session_state.show_expenses = False
 
-# ---------------- ADD EXPENSE ----------------
+    with btn_col2:
+        if st.button("📄 View Expenses", use_container_width=True):
+            st.session_state.show_expenses = True
+            st.session_state.show_add_expense = False
+
+st.markdown("---")
+
+# ---------------- EMPTY STATE ----------------
+if not st.session_state.show_add_expense and not st.session_state.show_expenses:
+    st.info("👆 Start by adding a new expense or view your existing expenses.")
+
+# ---------------- ADD EXPENSE CARD ----------------
 if st.session_state.show_add_expense:
     st.subheader("Add New Expense")
 
@@ -51,21 +78,21 @@ if st.session_state.show_add_expense:
 
             with st.spinner("Saving expense..."):
                 try:
-                    r = requests.post(
+                    response = requests.post(
                         f"{API_URL}/expenses",
                         json=payload,
                         timeout=5
                     )
-                    r.raise_for_status()
-                    st.success("Expense added successfully!")
+                    response.raise_for_status()
+                    st.success("✅ Expense added successfully!")
                 except Exception:
-                    st.error("Failed to save expense. Please try again.")
+                    st.error("❌ Failed to save expense. Please try again.")
 
-# ---------------- VIEW EXPENSES ----------------
+# ---------------- VIEW EXPENSES CARD ----------------
 if st.session_state.show_expenses:
     st.subheader("Expenses")
 
-    # ---- Fetch available filters from backend ----
+    # ---- Fetch filters from backend ----
     try:
         filters_response = requests.get(
             f"{API_URL}/expenses/filters",
@@ -81,9 +108,9 @@ if st.session_state.show_expenses:
         categories = ["All"]
         dates = ["All"]
 
-    # ---- Filters ----
+    # ---- Filters UI ----
     filter_category = st.selectbox("Filter by category", categories)
-    filter_date = st.selectbox("Sort / Filter by date", dates)
+    filter_date = st.selectbox("Filter / Sort by date", dates)
 
     params = {"sort": "date_desc"}
 
@@ -104,7 +131,7 @@ if st.session_state.show_expenses:
             response.raise_for_status()
             expenses = response.json()
         except Exception:
-            st.error("Failed to load expenses")
+            st.error("❌ Failed to load expenses")
             expenses = []
 
     # ---- Display ----
@@ -122,4 +149,4 @@ if st.session_state.show_expenses:
             for e in expenses
         ])
     else:
-        st.info("No expenses found.")
+        st.info("No expenses found for the selected filters.")
