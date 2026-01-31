@@ -3,6 +3,17 @@
 
 A simple full-stack **Expense Tracker** application built using **FastAPI** (backend) and **Streamlit** (frontend).The app allows users to add expenses, view them in a table, filter by category or date, sort by newest entries, and see the total amount of visible expenses.
 
+👉 Live Links
+-----------
+
+API docs will run at:
+
+ [https://expense-tracker-backend-hst2.onrender.com/docs](https://expense-tracker-backend-hst2.onrender.com/docs)
+
+Application available at:
+
+ [https://expensetracker-1.streamlit.app/](https://expensetracker-1.streamlit.app/)
+
 🚀 Features
 -----------
 
